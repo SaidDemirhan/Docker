@@ -1,0 +1,439 @@
+Docker CLI (Command Line Interface)
+
+https://labs.play-with-docker.com/ adresinden online docker i kullanabilirz.(4 saatlik)
+docker version
+diyeren docker yüklü oldugunu ve hangi versiyona sahip oldugunu biliyoruz.
+docker run hello-wold
+diyerek  hello world dosyasindan yeni bir container olustruyoruz.
+docker info
+ile daha ayrintili bir bilgi almaktayiz.
+Eger docker yazip enter a basarsak asagidaki gibi tüm komutlar listelenmis olur.
+ 
+ 
+ 
+
+Herhangi takildigimiz bir durumda --help yazmamiz yeterlidir. 
+docker container run hello-world
+yeni container olusturdu
+docker container ls -a
+acik olan tum container lari gösterir. Basindaki karaakter id leridir.
+docker container ls
+yalnizca acik olanlari gösterir. 
+docker ps de ls ile ayni vazifededir.
+docker container logs 3df5
+Gibi ID in basi bile yazilsa o konteynir ekrana getirilir.
+docker container stop 3df5
+calisan bir container I önce durdurmaniz sonrasinda silmeniz gereklidir.
+docker container rm 3df5
+bir bosluk birakarak baska id ler de yazilabilir.
+Eger durdurmadan silmek istenirse
+docker  container rm -f 3df5
+calisan bir konteynir a baglanma: 
+docker container exec -it websunucu sh
+exit ile container baglantimizi kesebiliriz.
+Konteyniri balatma:
+Docker start ContainerAdi
+Eger tüm konteynirlari silmek isterseniz docker dan:
+Docker container prune
+Uyari yazisina da yes demek sart.
+
+Imajlari listelemek icin:
+docker image ls
+imajlarin tamamini silmek icin:
+docker image prune -a
+Volume olusturma:
+docker  volume create ilkvolume
+Bu silinen Conteiner bilgilerinin baska bir container a aktarilmasini saglar.
+Volume un detaylarini görmek icin:
+Docker volume inspect ilkvolume
+Volume konteynir a baglama:
+docker container run -it -v ilkvolume:/uygulama alpine sh
+Konteiner I silsek bile volumler silinmiyor.
+Bir volume u birdrn fazla konteynir a baglayabiliyoruz.
+
+Eger bir konteynir olustururken --rm parametresi de girersek kapattigimiz anda silinecektir.
+docer contanier run --rm -it ozgurozturknet/adanzyedocker sh
+
+Network kurulum objelerini görme:
+docker network ls
+bridge networunun tüm özelliklerini inceleme:
+docker network inspect bridge
+Json array seklinde bize özellliklerimni getirir.
+yeni network olusturma:
+docker network create köprü1
+Konteynir ile baglantiyi kesme:
+Ctrl + PQ
+Bridge
+Host
+None (baglanti kurulmamasi istenirse)
+ isminde aglarimiz mevcut
+Ayni bridge networke bagli konteynirlar birirlerine ulasabilirler..
+
+Iki farkli konteynir türünde islem yapiliyorsa ve birbine ulasmalari uygun degilse ayri bridge de olusturulabilir.
+
+Port publish: disaridan konteynirlara ulasabilmek icin belirlenen bir porttur, 8080.
+Konteynir olustururken -p veya –publish ekleyerek bunu gerceklestirebiliriz.
+docker container run -d -p 8080:80 ozgurozturknet/adanzyedocker
+Ilk kisim host üzerindeki port ikinci kisim konteynir icindeki port, 8080:80
+-p ile birlikte birden fazla port eklenebilir.
+Default olarak tcp protokolunde acilir bu port, ama biz udp istersek 80/udp olarak yazariz.
+
+Konteynir olustururken -d ve -it komutunun farki:
+Eger arka planda calismasini istiyorsak -d;
+Terminalden kendimiz control etmek ve islem yapabilmek icin -it komutunu kullaniriz.
+
+-dit ile acilmis bir konteyner a attach komutu ile baglanilabilir
+docker container run -dit --name websunucu --net kopru1 ozgurozturknet/adanzyedocker sh
+docker attach websunucu
+bu komu ile baska -dit ile acilmis ayni bridge deki baska bir konteyner a ulasabiliriz ve ismiyle ping atabiliriz. 
+ping database
+cikmak icin ctrl+p+q ya basabiliriz.
+Bir konteynir birden fazla network e baglanabilir.
+Bir container i kullanici tanimli bridge networke baglama:
+docker network connect kopru1 database
+Bir container i kullanici tanimli bridge network ile baglantisini kesme:
+docker network disconnect kopru1 database
+
+bir network u slime:
+docker network rm kopru1
+eger üzerinde bagli bir network yoksa silecektir.
+
+Bir konteyniri silme:
+Docker container rm -f database
+Calisiyor olsa bile --force parametresini kullandigimiz icin silecektir.
+
+STDIN: klavyeden yapilan linux kodu girisleri
+STDOUT: Ekranda görünen  girise karsilik gelen Linux kodlari
+STDERR: yanlis giris karsisinda gelen linux hata mesaji
+
+Docker logs ne ise yarar?
+Bir konteynir -d parametresi ile bile olusturulsa log sayesinde mesajini görebiliriz.
+docker container run -d --name appbir orgurozturk/app1
+normalde terminalimizden göremeyiz ama log sayesinde mesajlarini görebiliriz.
+docker logs appbir
+
+127.0.0.1 nginx sayfasinin adresi
+Mesela bu sayfada yapilan ne kadar islem varsa docker logs tarafindan kayit altina aliniyor.
+Yenileme yanlis adres talebi vs..
+Normalde nginx in access.log ve error.log isimli iki dosyaya tüm loglarini kaydediyor ama burada termina de gönderdigini ancak her program cikisinin bu sekilde olmayacagini da bilmemiz gerekiyor.
+
+Eger zamansal olarak loglari görmek istersek:
+docker logs -t appbir
+
+Eger belli bir zamana kadar görmek istersek:
+docker logs --until ……. Appbir
+eger belli bir zaman sonrasini görmek istersek:
+docker logs --since …….. Appbir
+bosluk kismina loglarda gecen zaman dilimini aynen kopyalamaliyiz.
+
+Eger son olusturulmus 3 satiri görmek istersek:
+docker logs --tail 3 Appbir
+
+Canli olusan loglari görmek istersek:
+docker logs -f Appbir
+follow manasina gelir vr ctrl + c ile de bu ekrandan cikabiliriz.
+
+Eger docker info yazarsak log kisminda hangi tür dosyalarin desteklendigini görebiliriz.(Json file..)
+
+Konteynirin icine girerek terminalde ps e basinca hangi sistemlerin calistigini görürüz
+Bunun yerine 
+docker top Appbir
+yazmak zahmetsiz olacaktir.
+
+Konteynirlarin ne kadar cpu ram vs kullandigini görmek icin:
+docker stats
+sadece bir konteynirin istersek:
+docker stats Appbir
+
+eger biz bir container in hafizasini kisitlamazsak gerektiginde tamamini kullanacak sekilde default olarak ayarlanmistir. Kisitlamak icin:
+docker container run -d --momory:100m ozgurozturknet/adanzyedocker
+
+eger konteynirin hafizasi dolunca islemlerin devam edebilmesi adina extra yer acmak icin:
+docker container run -d --momory:100m --memory-swap:200m ozgurozturknet/adanzyedocker
+
+eger cpu sinirlamak istersek:
+docker container -d --cpus=”1,5” --cpuset-cpus=”0,3” ozgurozturknet/adanzyedocker
+burada toplam 1,5 cpu kulan ve kullandiklarin 0 ve 3 numarali cekirdeklerden olsun demek.
+
+Sistemde kayitli tüm Enviroment lari görme:
+Get-ChildItem Env:
+
+Eger belirli bir varable in degerini görmek istersek;
+$Env:windir
+C:\WINDOWS seklinde degerini getirecektir.
+
+Eger endimiz bir enviroment atamak istersek:
+$Env:test=”denemedir”
+
+Eger linux taki environment lari listelemek isteseydik:
+docker run -it ubuntu bash
+ile ubuntu terminalini baslatiyoruz sonra 
+printenv
+
+Eger belirli bir environment degerini yazdirmak istersek:
+echo $TERM
+xterm olarak degerini getirecektir.
+
+Yeni environment olusturmek icin:
+export test=”denemedir”
+
+konteynir ile birlikte environment olusrma:
+docker container run -it --env VAR1=”deneme1” –env VAR2=”deneme2” ubuntu bash
+olusturulan bu VAR1 ve VAR2 yi 
+printenv 
+komutuyla görebiliriz.
+Echo $VAR1
+Komutuyla degerinin deneme1 oldugunu görebiliriz.
+Variable larin Case sensetive oldugunu unutma!
+
+Windows taki bir environment i linux a tasima:
+docker container run -it --env TEMP ubuntu bash
+eger biz bu temp dosyasini deger girmeden buraya yazarsak tasimis oluyoruz. printenv ile görürüz.
+
+Cok fazlaenviroment girmemiz gerekiyorsa liste halinde cozebiliriz:
+docker container run -it --env-file .\env.list ubuntu bash
+bu dosyanin icinde sadece variable lar olmali. Vs code ile yazilip .list ile kaydedilebilir.
+
+Bir repository den image cekilmesi:
+docker image pull ozgurozturknet/adanzyedocker
+herhangi bir tag belirtmedigimiz icin default olan :latest tag ini sistem kullandi.
+Aslinda bir sirket imaj adresi
+docker.io/library/ubuntu:latest
+ve kisisel imaj adresi
+docker.io,ozgurozturknet/adanzyedocker:latest
+seklindedir. Ancak Docker varsayilan olarak docker.io adresini kaydettigi icin gerek kalmiyor.
+Biz her zaman docker.io dan indirmiyoruz. gcr.io …
+
+Docker a login olma:
+docker login
+bu sekilde dockerhub a girmis oluyor. Kullanici adi ve sifre istiyor.
+
+Ömemli talimatlar:
+FROM ubuntu:18.04
+Hangi docker imajindan olusturulmak istendigini belirtir.
+RUN apt-get update
+Imaj olusturulurken Shell`de komut calistirmaya yarar.
+WORKDIR /usr/src/app
+Cd xxx yerine direct istenilen klosere gecirir ve orada calismaya devam edilir.
+Eger belirtilen klosor yoksa otomatik olarak olusturulur.
+COPY /source/user/src/app
+Imaj icine dosya veya klosör kopyalamak icin kullanilir.
+Imaj islemi yaptigimiz dosyalari COPY ilekapyalarken digerlerini ADD ile ekleriz.
+Bunun benzeri ADD dir ayni ise yarar ama url de olsa .tar uzantili bir dosya da olsa (sikistirilmamis hali olarak) ekleyebilir.
+EXPOSE 80/tcp
+Imajdan olusturulacak konteynirin hangi portlardan erisilebilecegini belirtir.
+Elbette konteynir olusturulurken publich edilmesi sarttir.
+CMD java merhaba
+Varsayilan olarak ayarlamak istedigimiz komutu belirler.
+Bu komutun neredeyse aynisi olan ENTRYPOINT komutu da var ama bunun farki
+CMD ile yazilani container olusturulurken degistirebiliyoruz ama Entrypoint I Runtime esnasinda degistiremiyoruz.
+Eger bir arada ikisi de kullanilirsa CMD komutunu Entrypoint in parametresi olarak algilar:
+ENTRYPOINT  [“ping”]
+CMD [“127.0.0.1”]
+
+HEALTCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
+HEALTCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://localhost/ || exit 1
+Konteynerin hala calisip calismadigini kontrol eder.
+
+Visual Studio da bir imaj olustururken adi
+Dockerfile 
+Olmali ve herhangi bir uzanti veya harf degisikligi yapilmamali.
+
+Bir Dockerfile dosyasi icin örnek:
+FROM ubuntu:18.04
+RUN apt-get update -y
+RUN apt-get install default-jre -y
+WORKDIR /merhaba
+COPY /myapp .
+CMD [“java”,  “merhaba”]
+
+Bu Dockerfile dosyasindan bir imaj olusturma:
+docker image build -t ozgurozturknet/merhaba .
+olusturulmak istenen klosorun icine girip terminalden yazilmalidir.
+
+Olusturulan imaji dockerhub a gönderme:
+docker  image push ozgurozturknet/merhaba
+
+Eger imajda degisiklik yoksa Using cache olarak devam eder, degisiklik olursa o adimdan itibaren önbellegi kullanmayi keser.
+
+Bazi ise yarayan isaretler:
+> (büyüktür) isareti:
+Herhangi bir ciktiyi bir dosyaya yazmaya yarar.
+echo $SHELL > deneme.txt
+Shell in bulundugu adresi deneme.txt dosyasina kaydetti. /bin/bash. cat deneme.txt komutuyla görülebilir.
+
+& (Ampesand) isareti:
+Bir komut girdigimizzde eger uzun sürecekse ve komut tamamlanana kadar terminali kullanamayacaksak komut sonuna & isareti koyarak isleme arka plana alabiliriz.
+./test.sh &
+Eger arka planaki isleri görmek istersek jobs yazabiliriz. [1]+ running olarak görecegiz.
+Ctrl+ C komutuyla normalde ekrani kullanmaya yeniden baslayabiliriz lakin bu sefer islemi de iptal etmis oluruz.
+ 
+| (pipe) isareti
+Ilk yazilan cikti komutunu ikinci komuta girdi olarak gitmesini saglar.
+Örnegin abc.txt dosyamiz var ve icinde 123 yaziyor.
+cat abc.txt | grep 2
+ekrana 123 olarak yazdiracaktir.
+
+; (semikolon) isareti:
+Linux dünyasinda semicolon, ayni satirda birden fazla komutun girilmesine olanak tanir.
+date ; ls
+komutu alt alta hem aktüel tarihi hem de bulunulan konumdaki dosya ve klosörleri getirir.#
+
+&& (double ampersand) :
+Eger ilk komut calisirsa ikinci komutu calistir manasina gelir.
+cat abc.txt && echo “dosya bulundu”
+
+|| (double pipe) :
+Eger ilk komut calisirsa ikinci komut calismaz, eger ilk komut calismazsa ikinci komut calisir.
+cat abc.txt || cat def.txt
+
+\ ters egik cizgi:
+Eger kodlarda uzun yazmamiz gerektiginde enter a basmadan önce satirin devam ettigini belirtmek istiyorsak ters cizgi gireriz.
+
+Eger bir imaji ayrintili incelemek istersek:
+docker image inspect ozgurozturknet/hellowold
+
+pwd (print working directory) komutu, digger komutlari calistirmadan evvel hangi dizinde oldugumuzu görmek icin kullanilir.
+
+Iki tarz komut grime tarzi var (Exec- Shell):
+Exec form:
+CMD [“java“,“uygulama“]
+Exec formu Shell calistirmadigi icin direct prosess olarak calisir ama bazi degerlere erisemezler.
+Bu form ayni zamanda json array formudur.
+Shell form:
+CMD java uygulama
+Eger Shell formu kullanilirsa ve CMD ENTRYPOINT birlikte kullanilmissa parameter olarak CMD aktarilamaz.
+
+Bir konteynidan bulunulan klosore dosya kopyalama:
+docker cp javauygulama:/usr/src/uygulama
+Bir dockerfile da ikinci asamayi baslatma:
+Ikince kez FROM talimati vermektir.
+
+Multi stage Build:
+FROM mcr.microsoft.com/java/jdk:8-zulu-alpine AS derleyici
+COPY /source/usere/src/uygulama
+WORKDIR /usr/src/uygulama
+RUN javac uygulama.java
+
+FROM mcr.microsoft.com/java/jdk:8-zulu-alpine 
+WORKDIR /uygulama
+COPY --from=derleyici /usr/src/uygulama . (--from nginx:lastest de olabilir.)
+CMD [“java”, “uygulama”]
+
+ Esneklik icin ARG:
+Bir isleme esneklik saglamak icin bulunmus bir parametredir.
+FROM …
+WORKDIR …
+ARG VERSION 3.7.1
+ADD https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz .
+CMD ls -al
+
+Docker image build -t yeniimaj –build-arg VERSION=1.2.3 .
+ ARG ile olusturulan degerler bu imajdan olusturulankonteynir in icinden erisilemez. Cünkü bunlar sistemeden erisilen environment lar degildir, öyle olmasini istersek ENV kullanmaliyiz.
+
+Imaj olusturmak icin kullanilan 2. Yöntem:
+Bir konteynir calistirip sonra bunun icindeki tüm degisiklikleri hallettikten sonra bu dosyyayi 
+Docker commit gibi imaj olarak kaydetmektir.
+docker container run --name  kopya1 ubuntu:latest bash
+basta degisiklik yapalim,
+apt-get update
+yeni bir imaj olarak kaydedelim
+docker ps -a ile tüm dosyalari görelim
+docker commit kopya1 oygurozturknet/kopya1:latest
+
+imaj olustururken yeni talimat da girebiliriz.
+docker commit -c ‘CMD [“java“, “uygulama“]’ kopya2 ozgurozturknet/kopya2:ikinci
+
+bir imaji arsiv dosyasi olarak kaydetme:
+docker save ozgurozturknet/kopya1:latest -o kopya1imaj.tar
+arsiv dosyasini usb bellge alabilliriz.
+Docker load -i ./kopya1.tar 
+Komutuyla internetsiz bir ortama bilgiyi cekmis olduk.
+
+ Kendi docker hub imizi olustirma(local depo olusturma):
+https://hub.docker.com/search?q=&operating_system=linux adresinden istedigimiz registry i sistemimize cekiyoruz.
+docker pull registry
+bu registry isimli imajdan bir konteynir olusturalim 
+docker run -d -p 5000:5000 -restart always --name  registry registry
+EKbilgi:
+restart seceneginde 4 parametre var:
+no: kapanirsa calistirma (default)
+always: her zaman yeniden basalt
+on-failure: hata alirsan yeniden basalt
+unless-stopped: biz kapatirsak calistirma digger her türlü durum icin calistir.
+
+Biz adres cubuguna 127.0.0.1:5000 yazdik ve hata almadik, bayaz bir ekran cikti.
+127.0.0.1:5000/v2/catalog yazinca {“repositories”:[]} cikiyor.
+
+Imajlara tag verme:
+Docker image ozgurozturknet/hello-App:lastest 127.0.0.1:500/hello-app:lastest
+Artik imajimizin tagi da hazir
+
+Imaja gönderme:
+docker image push 127:0.0.1:5000/hello-app:latest
+artik bu imaja erisebiliriz.
+
+Docker-compose:
+Coklu konteynir sistemlerini YAML dosyasi olarak tanimlamamizi saglar. Baska bir deyisle; Birden fazla konteynir üzerinde islem yapabilmemizi saglayan bir uygulamadir.
+Eger docker i kurmussak compose da otomatik olarak yüklenmistir windows desktop kullaniyorsaniz, görmek icin:
+Docker-compose –version
+Eger yoksa internetten arastir.
+YAML: siradan insanlarin anlayabilmesi icin olusturulan bir veri serielizizasyon dili
+Konfigurasyon dosyalari genellikle bu dille olusturulur.
+Kubernets terraform vs yaml dosyalarini kullanir.
+Docker-compose.yaml veya Docker-compose.yml adinda bir dosya olusturmaliyiz.
+(bastaki d harfinin üyük veya kücük olmasi farketmez)
+Istenilen tüm opsiyonlari ve konfigurasyonlari bu .yaml dosyasinda ayarliyoruz ve sonra
+docker-compose up -d
+komutuyla ortamimizi hazirliyoruz. Ve iki konteynir olusturuldu.
+Bu olusan container lari docker ps komutuyla görebiliriz.
+
+Bu islemi iptal etmek  ve silmek icin:
+docker-compose down
+yazip enter a basmamiz yeterli
+(volume lari silmeyecektir)
+
+docker-compose config: yaml dosyasinin icerigini ekrana getirir.
+docker-compose image: olusturulan servislerin hangi imajlardan olustugunu gösterir
+docker-compose logs: ayaktaki servisini loglarini gösterir.
+docker-compose exec servisA ls -al: olusturulan bir servis icinde istenilen komut calistirilabilir.
+ Servis=container
+
+.yml dosyasi
+Her .yml veya .yaml dosyasi 
+version: “3.7”
+ile baslamali (en yüksek version tercih edilir) ve tüm degerler key-value olmali
+services:
+	veritabani:
+		image: mysql:5.7
+		restart: always
+		volumes:
+-	verilerim:/var/lib/mysql
+-	ikinci:/data
+(eger veritabani kisminda  yazilan volume ler yoksa hata gelecektir.)
+		environment: 
+			MYSQL_ROOT_PASSWORD: somewordpress
+			MYSQL_DATABASE: wordpress
+			MYSQL_USER: wordpress
+			MYSQL_PASSWORD: wordpress
+(Normalde biz; docker container run --env MYSQL_ROOT_PASSWORD=”somewordpress” seklinde ekliyorduk.)
+		networks:
+-	wordpressnet
+(eger burdaki networks kisminda  yazilan alttaki networks te yoksa hata gelecektir.)
+(Normalde biz; docker container --net wordpressnet seklinde ekliyorduk)
+	wordpress: (yeni bir servis(container)
+		image: wordpress:latest
+		depends_on: 
+-	veritabani
+(önce veritabani olusmamissa bunu calistirma(depends-on))
+restart: always
+ports:
+-	“80:80”
+(Normalde biz; docker container run -p 80:80)
+volumes:
+	verilerim: 
+networks:
+	wordpressnet:
+drivers: bridge
+secrets:
+
